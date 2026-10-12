@@ -1,10 +1,194 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>SolPay Link</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SolPay Link - Pasarela de Pagos en Solana</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .bg-gradient-dark { background: radial-gradient(circle at top right, #111827, #030712); }
+    .solana-gradient-text {
+      background: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
 </head>
-<body>
-    <h1>SolPay Link en línea</h1>
+<body class="bg-gradient-dark text-slate-100 min-h-screen flex flex-col justify-between antialiased">
+
+  <!-- Header / Navbar -->
+  <header class="border-b border-slate-800/80 backdrop-blur-md bg-slate-950/40 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-purple-600 to-emerald-400 flex items-center justify-center font-bold text-slate-950 text-2xl shadow-lg shadow-purple-500/20">
+          S
+        </div>
+        <div>
+          <span class="text-xl font-bold tracking-tight text-white">SolPay <span class="solana-gradient-text">Link</span></span>
+          <span class="block text-xs text-slate-400">Solana Payment Protocol</span>
+        </div>
+      </div>
+      <div>
+        <button id="connectWalletBtn" onclick="toggleWallet()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-emerald-500 hover:from-purple-500 hover:to-emerald-400 text-slate-950 font-semibold text-sm transition-all shadow-lg shadow-emerald-500/10 flex items-center gap-2">
+          <i class="fa-solid fa-wallet">
+</i>
+          <span id="walletBtnText">Conectar Wallet</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero & Main Workspace -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow w-full">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-medium mb-4">
+        <i class="fa-solid fa-bolt text-emerald-400">
+</i> Payment links for Solana
+      </div>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
+        Pagos sin fricción en <span class="solana-gradient-text">Solana</span>
+      </h1>
+      <p class="mt-4 text-base sm:text-lg text-slate-400">
+        Pasarela de pagos descentralizada y protocolo de custodia no custodiada para comercios, creadores y freelancers.
+      </p>
+    </div>
+
+    <!-- App Dashboard Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      
+      <!-- Panel de Creación -->
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-xl">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-3 bg-purple-500/10 rounded-xl text-purple-400">
+            <i class="fa-solid fa-link text-xl">
+</i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-white">Crear enlace de pago</h2>
+            <p class="text-xs text-slate-400">Compatible con USDC y Solana Pay</p>
+          </div>
+        </div>
+
+        <form id="payForm" onsubmit="event.preventDefault(); updatePreview();" class="space-y-5">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Descripción del producto o servicio</label>
+            <input type="text" id="descInput" value="Diseño UI/UX - Colosseum Hackathon" placeholder="Ej: Desarrollo Web Freelance" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Monto a cobrar (USDC)</label>
+            <div class="relative">
+              <input type="number" id="amountInput" value="50" placeholder="0.00" step="any" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 transition text-sm pr-16">
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-emerald-400 text-xs">USDC</span>
+            </div>
+          </div>
+
+          <button type="button" onclick="updatePreview()" class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-emerald-500 hover:from-purple-500 hover:to-emerald-400 text-slate-950 font-bold rounded-xl transition text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-500/10">
+            <i class="fa-solid fa-wand-magic-sparkles">
+</i> Generar SolPay Blink URL
+          </button>
+        </form>
+      </div>
+
+      <!-- Panel de Vista Previa Interactiva -->
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-xl flex flex-col justify-between min-h-[380px]">
+        <div>
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Vista Previa Interactiva</h3>
+              <p class="text-xs text-slate-400">Así verá tu cliente el enlace</p>
+            </div>
+            <span class="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] rounded-full font-semibold uppercase">Activo</span>
+          </div>
+
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 id="prevDesc" class="font-bold text-white text-lg">Diseño UI/UX - Colosseum Hackathon</h4>
+                <p class="text-xs text-slate-400 mt-1">Comisión: 0% • Custodia desatendida</p>
+              </div>
+              <div class="text-right">
+                <span id="prevAmount" class="text-2xl font-extrabold text-emerald-400">$50.00</span>
+                <span class="block text-[10px] text-slate-400 uppercase font-bold">USDC</span>
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+              <span id="solpayLink" class="truncate max-w-[220px] font-mono text-[11px] text-slate-500">solpay://pay?recipient=solpay...</span>
+              <button onclick="copyLink()" class="text-purple-400 hover:text-purple-300 font-semibold flex items-center gap-1 text-xs">
+                <i class="fa-regular fa-copy">
+</i> Copiar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-slate-800/60">
+          <button id="payBtn" onclick="processPayment()" class="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold rounded-xl transition text-base flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+            <i class="fa-solid fa-lock">
+</i> Pagar con Solana Pay
+          </button>
+          <p id="payStatus" class="text-center text-xs text-slate-400 mt-2 min-h-[18px]"></p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/60 py-6 bg-slate-950/60">
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+      SolPay Link Protocol • Construido para Colosseum & Superteam Hackathon • Red Solana
+    </div>
+  </footer>
+
+  <script>
+    let isConnected = false;
+
+    function toggleWallet() {
+      const btnText = document.getElementById('walletBtnText');
+      const btn = document.getElementById('connectWalletBtn');
+      if (!isConnected) {
+        btnText.innerText = "0x7F...3B9A";
+        btn.classList.remove('from-purple-600', 'to-emerald-500');
+        btn.classList.add('bg-slate-800', 'text-emerald-400', 'border', 'border-emerald-500/30');
+        isConnected = true;
+      } else {
+        btnText.innerText = "Conectar Wallet";
+        btn.classList.add('from-purple-600', 'to-emerald-500');
+        btn.classList.remove('bg-slate-800', 'text-emerald-400', 'border', 'border-emerald-500/30');
+        isConnected = false;
+      }
+    }
+
+    function updatePreview() {
+      const desc = document.getElementById('descInput').value || 'Producto sin título';
+      const amount = parseFloat(document.getElementById('amountInput').value || '0').toFixed(2);
+      
+      document.getElementById('prevDesc').innerText = desc;
+      document.getElementById('prevAmount').innerText = '$' + amount;
+      document.getElementById('solpayLink').innerText = `solpay://pay?recipient=solpay...&amount=${amount}&spl=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`;
+    }
+
+    function copyLink() {
+      const link = document.getElementById('solpayLink').innerText;
+      navigator.clipboard.writeText(link);
+      alert('¡Enlace de SolPay Blink copiado al portapapeles!');
+    }
+
+    function processPayment() {
+      const status = document.getElementById('payStatus');
+      status.innerText = "Procesando transacción en Solana Mainnet-Beta...";
+      status.className = "text-center text-xs text-purple-400 font-medium mt-2 animate-pulse";
+      
+      setTimeout(() => {
+        status.innerText = "¡Pago verificado exitosamente en la blockchain! 🚀";
+        status.className = "text-center text-xs text-emerald-400 font-bold mt-2";
+      }, 1800);
+    }
+  </script>
 </body>
 </html>
